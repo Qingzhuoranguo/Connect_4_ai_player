@@ -79,7 +79,6 @@ int ConnectFour::Make_a_Move ( uint8_t col ){
 	}
 
 	int result = Check_Win ( pos, col );
-	std::cout << "result is: " << result << std::endl;
 	//if someone wins, no more legal next move.
 	if (result != 0){
 		this->Possible_Choice.clear();
@@ -90,31 +89,33 @@ int ConnectFour::Make_a_Move ( uint8_t col ){
 uint8_t ConnectFour::Check_Win ( uint8_t x, uint8_t y ){
 	uint8_t player = this->Gameboard[x][y];
 	uint8_t player_count = 1;
-
+	
 	//horizontal:
 	//1) to the left:
-	int8_t horizontal_iterater = y;
-	while ( horizontal_iterater-1 >= 0 && horizontal_iterater-1 > y-4 ){
-		horizontal_iterater --;
-		if ( this->Gameboard [x][horizontal_iterater] == player ){
+	int8_t horizontal_iterater = y-1;
+	while ( horizontal_iterater >=0 && horizontal_iterater > y -4 ){
+		if ( this->Gameboard[x][horizontal_iterater] == player ){
 			player_count ++;
+			horizontal_iterater--;
+			continue;
 		}
 		break;
 	}
-	if (player_count >=4){
-		return this->Gameboard[x][y];
+	if (player_count == 4){
+		return player;
 	}
-	//2) to the right:
-	horizontal_iterater = y;
-	while ( horizontal_iterater+1 <= 6 && horizontal_iterater+1 < y+4 ){
-		horizontal_iterater ++;
-		if ( this->Gameboard [x][horizontal_iterater] == player ){
+	//2) to the right
+	horizontal_iterater = y+1;
+	while ( horizontal_iterater <=6 && horizontal_iterater < y+4 ){
+		if ( this->Gameboard[x][horizontal_iterater] == player ){
 			player_count ++;
+			horizontal_iterater++;
+			continue;
 		}
 		break;
 	}
-	if (player_count >=4){
-		return this->Gameboard[x][y];
+	if (player_count == 4){
+		return player;
 	}
 
 	return 0;
