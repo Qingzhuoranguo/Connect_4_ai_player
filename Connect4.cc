@@ -87,36 +87,20 @@ int ConnectFour::Make_a_Move ( uint8_t col ){
 }
 
 uint8_t ConnectFour::Check_Win ( uint8_t x, uint8_t y ){
-	uint8_t player = this->Gameboard[x][y];
-	uint8_t player_count = 1;
+	if (x>2)
+		if (this->Gameboard[x][y]==this->Gameboard[x-1][y] && 
+			this->Gameboard[x][y]==this->Gameboard[x-2][y] && 
+			this->Gameboard[x][y]==this->Gameboard[x-3][y])
+			
+			return this->Gameboard[x][y];
 	
-	//horizontal:
-	//1) to the left:
-	int8_t horizontal_iterater = y-1;
-	while ( horizontal_iterater >=0 && horizontal_iterater > y -4 ){
-		if ( this->Gameboard[x][horizontal_iterater] == player ){
-			player_count ++;
-			horizontal_iterater--;
-			continue;
-		}
-		break;
-	}
-	if (player_count == 4){
-		return player;
-	}
-	//2) to the right
-	horizontal_iterater = y+1;
-	while ( horizontal_iterater <=6 && horizontal_iterater < y+4 ){
-		if ( this->Gameboard[x][horizontal_iterater] == player ){
-			player_count ++;
-			horizontal_iterater++;
-			continue;
-		}
-		break;
-	}
-	if (player_count == 4){
-		return player;
-	}
+	// horizontal
+	for (int c = 0; c < std::min(4,y+1); c++)
+		if (y-c<4 && this->Gameboard[x][0+c]==this->Gameboard[x][1+c] && 
+			this->Gameboard[x][0+c]==this->Gameboard[x][2+c] && 
+			this->Gameboard[x][0+c]==this->Gameboard[x][3+c])
+
+			return this->Gameboard[x][y];
 
 	return 0;
 }
