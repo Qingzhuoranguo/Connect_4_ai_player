@@ -19,3 +19,17 @@ private:
 	uint8_t Total_Move;
 
 };
+
+
+class AI{
+private:
+	uint8_t random_fill(ConnectFour game);
+	uint8_t stats[7] = -1;
+
+public:
+	AI(ConnectFour game);
+	~AI();
+
+	uint8_t AImove(ConnectFour game);
+
+}

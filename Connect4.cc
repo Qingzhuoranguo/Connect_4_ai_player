@@ -1,6 +1,6 @@
 #include "Connect4.h"
 #include <iostream>
-#include<algorithm> 
+#include <algorithm> 
 
 ConnectFour::ConnectFour(){
 	//initialize the gameboard to be 0's -> empty
@@ -103,4 +103,24 @@ uint8_t ConnectFour::Check_Win ( uint8_t x, uint8_t y ){
 			return this->Gameboard[x][y];
 
 	return 0;
+}
+
+
+AI::AI(ConnectFour game){
+	std::list<uint8_t>::iterator it;
+	for (it = game.Possible_Choice.begin(); it != game.Possible_Choice.end(); it++){
+		this->stats[*it] = 0;
+	}
+}
+
+
+uint8_t AI::AImove(ConnectFour game){
+	std::list<uint8_t> move = game.Possible_Choice;
+	ConnectFour simulate = ConnectFour::ConnectFour(game)
+
+	std::list<uint8_t>::iterator it;
+	for (it = game.Possible_Choice.begin(); it != game.Possible_Choice.end(); it++){
+		simulate.Gameboard.Make_a_Move(*it);
+		int result = random_fill(simulate)
+	}
 }
