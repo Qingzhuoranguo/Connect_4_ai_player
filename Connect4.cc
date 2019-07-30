@@ -113,14 +113,55 @@ AI::AI(ConnectFour game){
 	}
 }
 
+AI::~AI(){
+	return;
+}
+
 
 uint8_t AI::AImove(ConnectFour game){
 	std::list<uint8_t> move = game.Possible_Choice;
-	ConnectFour simulate = ConnectFour::ConnectFour(game)
 
 	std::list<uint8_t>::iterator it;
 	for (it = game.Possible_Choice.begin(); it != game.Possible_Choice.end(); it++){
-		simulate.Gameboard.Make_a_Move(*it);
-		int result = random_fill(simulate)
+		AImove_one(game, *it)
 	}
+
+	return *std::max_element(this->stats, this->stats+7)
+}
+
+void AI::AImove_one(ConnectFour game, uint8_t num){
+	uint8_t AI_num = (game.Total_Move%2==1)+1;
+
+	for (int i = 0; i < 1; i++){
+		ConnectFour simulate = ConnectFour::ConnectFour(game);
+		int result = simulate.Gameboard.Make_a_Move(num);
+		if (result != 0){
+			this->stats[*it]++;
+		}else{
+			result = random_fill(simulate);
+			if (result == AI_num){
+				this->stats[*it]++;
+			}else if (result == 0){
+				this->stats[*it]++;
+			}else{
+				this->stats[*it]=this->stats[*it];
+			}
+		}
+	}
+}
+
+uint8_t AI::random_fill(ConnectFour game){
+	int move_result = game.Check_Win();
+	while (game.Total_Move < 42){
+		int next_pos = rand()%7;
+		move_result = game.Make_a_Move(next_pos);
+		// fail to move because that position is pre-occupied
+		while (move_result == -1){
+			next_pos = rand()%7;
+		}
+		if (move_result != 0){
+			break;
+		}
+	}
+	return move_result
 }

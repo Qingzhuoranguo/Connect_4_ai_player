@@ -5,10 +5,13 @@
 class ConnectFour {
 private:
 	uint8_t Gameboard [6][7];
+	// return 0 if no one wins, return 1 or 2 if someone wins, 
+	// return -1 if fail to insect
 	uint8_t Check_Win ( uint8_t x, uint8_t y );
 
 public:
 	ConnectFour();
+	ConnectFour(ConnectFour& game);
 	~ConnectFour();
 
 	void Print_Game_Board();
@@ -31,5 +34,6 @@ public:
 	~AI();
 
 	uint8_t AImove(ConnectFour game);
+	void AImove_one(ConnectFour game, uint8_t num);
 
 }
