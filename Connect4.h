@@ -23,6 +23,8 @@ public:
 	int Make_a_Move ( uint8_t col );
 	inline bool Is_Over() { return this->Possible_Choice.empty() == true; }
 	inline int Get_Total_Move () { return this->Total_Move; }
+
+	uint8_t Random_Possible_Choice ();
 private:
 	std::list<uint8_t> Possible_Choice;
 	uint8_t Total_Move;

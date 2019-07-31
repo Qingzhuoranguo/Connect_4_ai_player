@@ -5,7 +5,8 @@
 #include <chrono>
 #include <assert.h>
 #include <mutex>
-
+#include <ctime>    // For time()
+#include <cstdlib>  // For srand() and rand()
 
 // keep track of how many threads are finished, protected by single mutex
 struct Thread_lock{
@@ -128,14 +129,20 @@ uint8_t ConnectFour::Check_Win ( uint8_t x, uint8_t y ){
 			return this->Gameboard[x][y];
 	return 0;
 }
-
-
-
-uint8_t random_fill (){
-	return 0;
+uint8_t ConnectFour::Random_Possible_Choice (){
+	uint8_t size = (rand()%this->Possible_Choice.size());
+	for ( auto v : this->Possible_Choice ){
+		std::cout << +v ;
+	}
+	std::cout << std::endl;
+	uint8_t i = 0;
+	for ( auto v : this->Possible_Choice ){
+		i ++;
+		if (i == size){
+			return v;
+		}
+	}	
 }
-
-
 // Thread runner, responsible for calculation of steps after the 'first move'
 void AI_play (uint8_t first_move, float *stats, ConnectFour *game, uint64_t playouts, uint8_t *terminate, Thread_lock *instance ){
 	
@@ -148,6 +155,7 @@ void AI_play (uint8_t first_move, float *stats, ConnectFour *game, uint64_t play
 		//playouts-------
 		ConnectFour local_game_cpy(game);
 		int result = local_game_cpy.Make_a_Move(first_move);
+		local_game_cpy.Print_Game_Board();
 
 		if (result == -1){ //firt move not legal -> thread not legal, terminated.
 			std::cout << "not legal\n";
@@ -156,21 +164,33 @@ void AI_play (uint8_t first_move, float *stats, ConnectFour *game, uint64_t play
 			win_count ++;
 		}else { //draw, invoke random_fill to play
 			bool tie = true;
+			
 			while ( !local_game_cpy.Is_Over() ){
-				uint8_t move = random_fill ();
+				uint8_t move = local_game_cpy.Random_Possible_Choice ();
+				assert ( move < 7 && move >=0);
+
+				std::cout << "move is: " << +move << std::endl;
+
 				result = local_game_cpy.Make_a_Move (move);
+				local_game_cpy.Print_Game_Board();
+
+				assert (result != -1);
 				if (result != 0){ //human wins
 					lose_count ++;
 					tie = false;
-				}else if (result == 0){ //after human move, tied
-					move = random_fill ();
+				}else{ //after human move, tied
+					move = local_game_cpy.Random_Possible_Choice ();
+					assert ( move < 7 && move >=0);
+					
 					result = local_game_cpy.Make_a_Move (move); // AI makes a move
+					local_game_cpy.Print_Game_Board();
+
 					if (result != 0){ // AI wins
 						win_count ++;
 						tie = false;
+					}else{ //tie
+						continue;
 					}
-				}else { // should not be anything else
-					std::cout << "Error\n"; 
 				}
 			}
 			if (local_game_cpy.Is_Over() && tie){
@@ -200,12 +220,12 @@ uint8_t AI_decision (ConnectFour *game, uint64_t playouts = 500, uint8_t time_li
 
 	//create 7 threads to random play with each move
 	std::thread thread0( AI_play, 0, &(stats[0]), game, playouts, &terminate, &instance );
-	std::thread thread1( AI_play, 1, &(stats[1]), game, playouts, &terminate, &instance );
-	std::thread thread2( AI_play, 2, &(stats[2]), game, playouts, &terminate, &instance );
-	std::thread thread3( AI_play, 3, &(stats[3]), game, playouts, &terminate, &instance );
-	std::thread thread4( AI_play, 4, &(stats[4]), game, playouts, &terminate, &instance );
-	std::thread thread5( AI_play, 5, &(stats[5]), game, playouts, &terminate, &instance );
-	std::thread thread6( AI_play, 6, &(stats[6]), game, playouts, &terminate, &instance );
+	// std::thread thread1( AI_play, 1, &(stats[1]), game, playouts, &terminate, &instance );
+	// std::thread thread2( AI_play, 2, &(stats[2]), game, playouts, &terminate, &instance );
+	// std::thread thread3( AI_play, 3, &(stats[3]), game, playouts, &terminate, &instance );
+	// std::thread thread4( AI_play, 4, &(stats[4]), game, playouts, &terminate, &instance );
+	// std::thread thread5( AI_play, 5, &(stats[5]), game, playouts, &terminate, &instance );
+	// std::thread thread6( AI_play, 6, &(stats[6]), game, playouts, &terminate, &instance );
 
 	// while still time, main thread waits child threads to finish
 	auto start = std::chrono::steady_clock::now();
@@ -224,12 +244,12 @@ uint8_t AI_decision (ConnectFour *game, uint64_t playouts = 500, uint8_t time_li
 	}
 
 	thread0.join();
-	thread1.join();
-	thread2.join();
-	thread3.join();
-	thread4.join();
-	thread5.join();
-	thread6.join();
+	// thread1.join();
+	// thread2.join();
+	// thread3.join();
+	// thread4.join();
+	// thread5.join();
+	// thread6.join();
 
 	std::cout << "== stats is: [ ";
 	for (uint8_t i = 0; i < 7; i ++){
