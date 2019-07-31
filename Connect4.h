@@ -1,6 +1,6 @@
 #include <list>
 #include <stdint.h>
-
+#include <mutex>
 
 class ConnectFour {
 private:
@@ -10,30 +10,26 @@ private:
 	uint8_t Check_Win ( uint8_t x, uint8_t y );
 
 public:
-	ConnectFour();
-	ConnectFour(ConnectFour& game);
+	// default constructor
+	ConnectFour(); 
+
+	// copy constructor
+	ConnectFour(ConnectFour *game);
 	~ConnectFour();
 
+	// print the current game board
 	void Print_Game_Board();
+	
 	int Make_a_Move ( uint8_t col );
+	inline bool Is_Over() { return this->Possible_Choice.empty() == true; }
 	inline int Get_Total_Move () { return this->Total_Move; }
 private:
 	std::list<uint8_t> Possible_Choice;
 	uint8_t Total_Move;
-
 };
 
 
-class AI{
-private:
-	uint8_t random_fill(ConnectFour game);
-	uint8_t stats[7] = -1;
+// Returns calculated next move (best calculated next move). Accruicy is restricted by
+// current game status, pre defined number of playouts and time limits.
+uint8_t AI_decision (ConnectFour *game, uint64_t playouts, uint8_t time_limit);
 
-public:
-	AI(ConnectFour game);
-	~AI();
-
-	uint8_t AImove(ConnectFour game);
-	void AImove_one(ConnectFour game, uint8_t num);
-
-}
