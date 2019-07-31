@@ -127,6 +127,41 @@ uint8_t ConnectFour::Check_Win ( uint8_t x, uint8_t y ){
 			this->Gameboard[x][0+c]==this->Gameboard[x][3+c])
 
 			return this->Gameboard[x][y];
+	// diagonal up right
+	int r = x+3;
+	int c = y-3;
+	// std::cout << "x=" << x << "y=" << y << std::endl;
+	for (uint8_t k = 0; k < 4; k++){
+		if (r<6 && r-3>-1 && c>-1 && c+3<7){
+			if (this->Gameboard[r][c]==this->Gameboard[r-1][c+1] &&
+				this->Gameboard[r][c]==this->Gameboard[r-2][c+2] &&
+				this->Gameboard[r][c]==this->Gameboard[r-3][c+3])
+
+				return this->Gameboard[x][y];
+		}
+		r--;
+		c++;
+	}
+
+	// diagonal up left
+	r = x+3;
+	c = y+3;
+	std::cout << "x=" << +x << "y=" << +y << std::endl;
+	// std::cout << "r=" << r << "c=" << c << std::endl;
+	for (uint8_t k = 0; k < 4; k++){
+		// std::cout << "diagonal up left" << std::endl;
+		std::cout << "r=" << r << "c=" << c << std::endl;
+		if (r<6 && r-3>-1 && c<7 && c-3>-1){
+			std::cout << "satisfied" << std::endl;
+			if (this->Gameboard[r][c]==this->Gameboard[r-1][c-1] &&
+				this->Gameboard[r][c]==this->Gameboard[r-2][c-2] &&
+				this->Gameboard[r][c]==this->Gameboard[r-3][c-3])
+
+				return this->Gameboard[x][y];
+		}
+		r--;
+		c--;
+	}
 	return 0;
 }
 uint8_t ConnectFour::Random_Possible_Choice (){
