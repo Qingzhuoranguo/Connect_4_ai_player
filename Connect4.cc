@@ -146,13 +146,13 @@ uint8_t ConnectFour::Check_Win ( uint8_t x, uint8_t y ){
 	// diagonal up left
 	r = x+3;
 	c = y+3;
-	std::cout << "x=" << +x << "y=" << +y << std::endl;
+	//std::cout << "x=" << +x << "y=" << +y << std::endl;
 	// std::cout << "r=" << r << "c=" << c << std::endl;
 	for (uint8_t k = 0; k < 4; k++){
 		// std::cout << "diagonal up left" << std::endl;
-		std::cout << "r=" << r << "c=" << c << std::endl;
+		//std::cout << "r=" << r << "c=" << c << std::endl;
 		if (r<6 && r-3>-1 && c<7 && c-3>-1){
-			std::cout << "satisfied" << std::endl;
+			//std::cout << "satisfied" << std::endl;
 			if (this->Gameboard[r][c]==this->Gameboard[r-1][c-1] &&
 				this->Gameboard[r][c]==this->Gameboard[r-2][c-2] &&
 				this->Gameboard[r][c]==this->Gameboard[r-3][c-3])
@@ -165,17 +165,16 @@ uint8_t ConnectFour::Check_Win ( uint8_t x, uint8_t y ){
 	return 0;
 }
 uint8_t ConnectFour::Random_Possible_Choice (){
-	uint8_t size = (rand()%this->Possible_Choice.size());
-	for ( auto v : this->Possible_Choice ){
-		std::cout << +v ;
+	if (this->Possible_Choice.size()==0){
+		std::cout << "error\n";
 	}
-	std::cout << std::endl;
+	uint8_t index = (rand()%this->Possible_Choice.size());
 	uint8_t i = 0;
 	for ( auto v : this->Possible_Choice ){
-		i ++;
-		if (i == size){
+		if (i == index){
 			return v;
 		}
+		i ++;
 	}	
 }
 // Thread runner, responsible for calculation of steps after the 'first move'
@@ -190,7 +189,6 @@ void AI_play (uint8_t first_move, float *stats, ConnectFour *game, uint64_t play
 		//playouts-------
 		ConnectFour local_game_cpy(game);
 		int result = local_game_cpy.Make_a_Move(first_move);
-		local_game_cpy.Print_Game_Board();
 
 		if (result == -1){ //firt move not legal -> thread not legal, terminated.
 			std::cout << "not legal\n";
@@ -200,40 +198,42 @@ void AI_play (uint8_t first_move, float *stats, ConnectFour *game, uint64_t play
 		}else { //draw, invoke random_fill to play
 			bool tie = true;
 			
-			while ( !local_game_cpy.Is_Over() ){
+			while ( local_game_cpy.Is_Over()==false ){
 				uint8_t move = local_game_cpy.Random_Possible_Choice ();
 				assert ( move < 7 && move >=0);
 
-				std::cout << "move is: " << +move << std::endl;
 
 				result = local_game_cpy.Make_a_Move (move);
-				local_game_cpy.Print_Game_Board();
 
 				assert (result != -1);
 				if (result != 0){ //human wins
 					lose_count ++;
 					tie = false;
+					break;
 				}else{ //after human move, tied
+					if (local_game_cpy.Is_Over() == true){
+						break;
+					}
 					move = local_game_cpy.Random_Possible_Choice ();
 					assert ( move < 7 && move >=0);
 					
 					result = local_game_cpy.Make_a_Move (move); // AI makes a move
-					local_game_cpy.Print_Game_Board();
 
 					if (result != 0){ // AI wins
 						win_count ++;
 						tie = false;
+						break;
 					}else{ //tie
 						continue;
 					}
 				}
+				local_game_cpy.Print_Game_Board();
 			}
 			if (local_game_cpy.Is_Over() && tie){
 				draw_count ++;
 			}
 
 		}
-
 		//---------------
 	}
 	//write the calculated result back to the corresponding location
@@ -255,12 +255,12 @@ uint8_t AI_decision (ConnectFour *game, uint64_t playouts = 500, uint8_t time_li
 
 	//create 7 threads to random play with each move
 	std::thread thread0( AI_play, 0, &(stats[0]), game, playouts, &terminate, &instance );
-	// std::thread thread1( AI_play, 1, &(stats[1]), game, playouts, &terminate, &instance );
-	// std::thread thread2( AI_play, 2, &(stats[2]), game, playouts, &terminate, &instance );
-	// std::thread thread3( AI_play, 3, &(stats[3]), game, playouts, &terminate, &instance );
-	// std::thread thread4( AI_play, 4, &(stats[4]), game, playouts, &terminate, &instance );
-	// std::thread thread5( AI_play, 5, &(stats[5]), game, playouts, &terminate, &instance );
-	// std::thread thread6( AI_play, 6, &(stats[6]), game, playouts, &terminate, &instance );
+	std::thread thread1( AI_play, 1, &(stats[1]), game, playouts, &terminate, &instance );
+	std::thread thread2( AI_play, 2, &(stats[2]), game, playouts, &terminate, &instance );
+	std::thread thread3( AI_play, 3, &(stats[3]), game, playouts, &terminate, &instance );
+	std::thread thread4( AI_play, 4, &(stats[4]), game, playouts, &terminate, &instance );
+	std::thread thread5( AI_play, 5, &(stats[5]), game, playouts, &terminate, &instance );
+	std::thread thread6( AI_play, 6, &(stats[6]), game, playouts, &terminate, &instance );
 
 	// while still time, main thread waits child threads to finish
 	auto start = std::chrono::steady_clock::now();
@@ -279,12 +279,12 @@ uint8_t AI_decision (ConnectFour *game, uint64_t playouts = 500, uint8_t time_li
 	}
 
 	thread0.join();
-	// thread1.join();
-	// thread2.join();
-	// thread3.join();
-	// thread4.join();
-	// thread5.join();
-	// thread6.join();
+	thread1.join();
+	thread2.join();
+	thread3.join();
+	thread4.join();
+	thread5.join();
+	thread6.join();
 
 	std::cout << "== stats is: [ ";
 	for (uint8_t i = 0; i < 7; i ++){
