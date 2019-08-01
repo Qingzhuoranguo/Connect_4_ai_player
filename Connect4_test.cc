@@ -8,6 +8,7 @@
 #define TIME_LIMIT 5 //max time limit for each decision calculation
 
 
+
 int main () {
 	std::cout << "\nProgram starts\n";
 	std::srand((int) time(0));
@@ -38,5 +39,3 @@ int main () {
 
 	return 0;
 }
-
-

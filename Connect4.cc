@@ -54,6 +54,7 @@ ConnectFour::~ConnectFour(){
 void ConnectFour::Print_Game_Board(){
 	std::cout << std::endl << "The current game board is: \n";
 	for (int i = 5; i >-1; i --){
+		std::cout << "| ";
 		for (int j = 0; j < 7; j ++){
 			if (this->Gameboard[i][j] == 0){
 				std::cout << "* ";
@@ -67,9 +68,10 @@ void ConnectFour::Print_Game_Board(){
 			}
 			
 		}
+		std::cout << "| ";
 		std::cout << std::endl;
 	}
-	std::cout << "0 1 2 3 4 5 6" << std::endl;
+	std::cout << "| 0 1 2 3 4 5 6 |" << std::endl;
 }
 
 int ConnectFour::Make_a_Move ( uint8_t col ){
@@ -241,7 +243,7 @@ void AI_play (uint8_t first_move, float *stats, ConnectFour *game, uint64_t play
 
 	//tell main thread that this thread finishes
 	instance->finished_count_lock.lock();
-	std::cout << "== Child thread-" << std::this_thread::get_id() << " responsible for position "<< +first_move << " is terminated.\n";
+	//std::cout << "== Child thread-" << std::this_thread::get_id() << " responsible for position "<< +first_move << " is terminated.\n";
 	instance->finished_count++;
 	assert(instance->finished_count<=7);
 	instance->finished_count_lock.unlock();
@@ -267,7 +269,7 @@ uint8_t AI_decision (ConnectFour *game, uint64_t playouts = 500, uint8_t time_li
 	while ( std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start).count() < time_limit ){
 		//if all threads are finished, stop waiting.
 		if (instance.finished_count == 7){ 
-			std::cout << "== Main thread: all threads finished before time limit (" << +time_limit << " sec).\n";
+			//std::cout << "== Main thread: all threads finished before time limit (" << +time_limit << " sec).\n";
 			break;
 		}
 	}// used up time limit
@@ -275,7 +277,7 @@ uint8_t AI_decision (ConnectFour *game, uint64_t playouts = 500, uint8_t time_li
 	//send a signal to all child threads, force them to terminate.
 	if (instance.finished_count != 7){
 		terminate = 1; 
-		std::cout << "== Main thread: run over time limit (" << +time_limit << " sec). Threads are forced to terminate\n";
+		//std::cout << "== Main thread: run over time limit (" << +time_limit << " sec). Threads are forced to terminate\n";
 	}
 
 	thread0.join();
@@ -286,11 +288,11 @@ uint8_t AI_decision (ConnectFour *game, uint64_t playouts = 500, uint8_t time_li
 	thread5.join();
 	thread6.join();
 
-	std::cout << "== stats is: [ ";
-	for (uint8_t i = 0; i < 7; i ++){
-		std::cout << stats[i] << " ";
-	}
-	std::cout << "]"<<std::endl;
+	// std::cout << "== stats is: [ ";
+	// for (uint8_t i = 0; i < 7; i ++){
+	// 	std::cout << stats[i] << " ";
+	// }
+	// std::cout << "]"<<std::endl;
 
 	//find the max probability in stats and return the index (the move)
 	float max = stats[0];
@@ -304,62 +306,3 @@ uint8_t AI_decision (ConnectFour *game, uint64_t playouts = 500, uint8_t time_li
 	return index;
 }
 
-// AI::AI(ConnectFour game){
-// 	std::list<uint8_t>::iterator it;
-// 	for (it = game.Possible_Choice.begin(); it != game.Possible_Choice.end(); it++){
-// 		this->stats[*it] = 0;
-// 	}
-// }
-
-// AI::~AI(){
-// 	return;
-// }
-
-
-// uint8_t AI::AImove(ConnectFour game){
-// 	std::list<uint8_t> move = game.Possible_Choice;
-
-// 	std::list<uint8_t>::iterator it;
-// 	for (it = game.Possible_Choice.begin(); it != game.Possible_Choice.end(); it++){
-// 		AImove_one(game, *it)
-// 	}
-
-// 	return *std::max_element(this->stats, this->stats+7)
-// }
-
-// void AI::AImove_one(ConnectFour game, uint8_t num){
-// 	uint8_t AI_num = (game.Total_Move%2==1)+1;
-
-// 	for (int i = 0; i < 1; i++){
-// 		ConnectFour simulate = ConnectFour::ConnectFour(game);
-// 		int result = simulate.Gameboard.Make_a_Move(num);
-// 		if (result != 0){
-// 			this->stats[*it]++;
-// 		}else{
-// 			result = random_fill(simulate);
-// 			if (result == AI_num){
-// 				this->stats[*it]++;
-// 			}else if (result == 0){
-// 				this->stats[*it]++;
-// 			}else{
-// 				this->stats[*it]=this->stats[*it];
-// 			}
-// 		}
-// 	}
-// }
-
-// uint8_t AI::random_fill(ConnectFour game){
-// 	int move_result = game.Check_Win();
-// 	while (game.Total_Move < 42){
-// 		int next_pos = rand()%7;
-// 		move_result = game.Make_a_Move(next_pos);
-// 		// fail to move because that position is pre-occupied
-// 		while (move_result == -1){
-// 			next_pos = rand()%7;
-// 		}
-// 		if (move_result != 0){
-// 			break;
-// 		}
-// 	}
-// 	return move_result
-// }
