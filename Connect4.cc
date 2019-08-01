@@ -69,7 +69,7 @@ void ConnectFour::Print_Game_Board(){
 		}
 		std::cout << std::endl;
 	}
-	std::cout << std::endl;
+	std::cout << "0 1 2 3 4 5 6" << std::endl;
 }
 
 int ConnectFour::Make_a_Move ( uint8_t col ){

@@ -12,27 +12,29 @@ int main () {
 	std::cout << "\nProgram starts\n";
 	std::srand((int) time(0));
 	ConnectFour game;
+	int i;
 
 	//fill the second col on the game board
-	// std::cout << game.Make_a_Move (1) << std::endl;
-	// std::cout << game.Make_a_Move (1) << std::endl;
-
-	// std::cout << game.Make_a_Move (1) << std::endl;
-	// std::cout << game.Make_a_Move (1) << std::endl;
-	
-	// std::cout << game.Make_a_Move (1) << std::endl;
-	// std::cout << game.Make_a_Move (1) << std::endl;
-	
-	// std::cout << game.Make_a_Move (1) << std::endl;
+	while (game.Is_Over()==false){
+		game.Make_a_Move(AI_decision (&game, PLAYOUTS, TIME_LIMIT));
+		game.Print_Game_Board();
+		if (game.Is_Over()==true){
+			std::cout << "AI wins" << std::endl;
+			break;
+		}
+		std::cout << "Please input a position: ";
+		std::cin >> i;
+		game.Make_a_Move(i);
+		game.Print_Game_Board();
+		if (game.Is_Over()==true){
+			std::cout << "human wins" << std::endl;
+			break;
+		}
+	}
 	
 	game.Print_Game_Board();
 	std::cout << "Done\n";
 
-
-	uint8_t move = AI_decision (&game, PLAYOUTS, TIME_LIMIT);
-	game.Make_a_Move(move);
-	
-	std::cout << +move << std::endl;
 
 	return 0;
 }
