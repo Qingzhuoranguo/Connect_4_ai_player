@@ -52,7 +52,7 @@ ConnectFour::~ConnectFour(){
 }
 
 void ConnectFour::Print_Game_Board_simple(){
-	std::cout << std::endl << "The current game board is: \n";
+	std::cout << "The current game board is: \n";
 	for (int i = 5; i >-1; i --){
 		std::cout << "| ";
 		for (int j = 0; j < 7; j ++){
@@ -75,7 +75,7 @@ void ConnectFour::Print_Game_Board_simple(){
 }
 
 void ConnectFour::Print_Game_Board(){
-	std::cout << std::endl << "The current game board is: \n";
+	std::cout << "The current game board is: \n";
 	for (int i = 5; i >-1; i --){
 		std::cout<<"   +---+---+---+---+---+---+---+"<<std::endl;
 		for (int j = 0; j < 7; j ++){
@@ -94,7 +94,7 @@ void ConnectFour::Print_Game_Board(){
 		std::cout << std::endl;
 	}
 	std::cout<<"   +---+---+---+---+---+---+---+"<<std::endl;
-	std::cout<<"     0   1   2   3   4   5   6  "<<std::endl;
+	std::cout<<"     0   1   2   3   4   5   6  "<<std::endl <<std::endl;
 }
 
 int ConnectFour::Make_a_Move ( uint8_t col ){
@@ -225,7 +225,7 @@ void AI_play (uint8_t first_move, float *stats, ConnectFour *game, uint64_t play
 		int result = local_game_cpy.Make_a_Move(first_move);
 
 		if (result == -1){ //firt move not legal -> thread not legal, terminated.
-			std::cout << "not legal\n";
+			// std::cout << "not legal\n";
 			break;
 		}else if (result != 0){ // AI wins
 			win_count ++;
@@ -282,6 +282,7 @@ void AI_play (uint8_t first_move, float *stats, ConnectFour *game, uint64_t play
 }
 
 uint8_t AI_decision (ConnectFour *game, uint64_t playouts = 500, uint8_t time_limit = 3){
+	std::cout << "Waiting for AI to make decision..." << std::endl;
 	float stats[7] = {-1,-1,-1,-1,-1,-1,-1}; //random playout results
 	uint8_t terminate = 0; // 'singal flag' used to force terminate threads
 	Thread_lock instance; // keep track the number of finished threads, protected by single mutex

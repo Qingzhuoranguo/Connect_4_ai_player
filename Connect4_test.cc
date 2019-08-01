@@ -5,12 +5,12 @@
 #include <cstdlib>  // For srand() and rand()
 
 #define PLAYOUTS 100000000 //max random playouts the AI will make.
-#define TIME_LIMIT 5 //time limit for each decision calculation
+#define TIME_LIMIT 2 //time limit for each decision calculation
 
 void Play_Game ();
 
 int main () {
-	std::cout << "\n==================Program starts==================\n";
+	std::cout << "\n==================Program starts==================\n" << std::endl;
 	std::srand((int) time(0));
 	Play_Game();
 	
@@ -36,11 +36,12 @@ void Play_Game (){
 			std::cout << "Invalid input detected. Please enter again: (Y/n)";
 		}
 	}
-	std::cout << "Game starts:\n";
+	std::cout << "Game starts:\n" << std::endl;
 	
 	ConnectFour game;
 	char Human_Move;
 	int result = 0;
+	int AI_Move;
 
 	if (Human_First){
 		game.Print_Game_Board();
@@ -58,10 +59,12 @@ void Play_Game (){
 			return;
 		}
 	}
+
 	while ( !game.Is_Over() ){
-		
-		result = game.Make_a_Move( AI_decision (&game, PLAYOUTS, TIME_LIMIT) );
+		AI_Move = AI_decision (&game, PLAYOUTS, TIME_LIMIT);
+		result = game.Make_a_Move( AI_Move );
 		assert (result != -1);
+		std::cout << "AI choose to place at: " << AI_Move << std::endl;
 		game.Print_Game_Board();
 		if (result != 0){ //AI wins
 			std::cout << "You lose!\n";
