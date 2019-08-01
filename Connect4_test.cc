@@ -39,17 +39,18 @@ void Play_Game (){
 	std::cout << "Game starts:\n";
 	
 	ConnectFour game;
-	int Human_Move = 0;
+	char Human_Move;
 	int result = 0;
 
 	if (Human_First){
+		game.Print_Game_Board();
 		std::cout << "Please make your first move: ";
 		std::cin >> Human_Move;
-		while ( game.Is_Valid(Human_Move)==false ){
+		while ( game.Is_Valid(int(Human_Move)-48)==false ){
 			std::cout << "Your input is invalid, please make another valid input.";
 			std::cin >> Human_Move;
 		}
-		result = game.Make_a_Move (Human_Move);
+		result = game.Make_a_Move (int(Human_Move)-48);
 		assert (result != -1);
 		game.Print_Game_Board();
 		if (result != 0){ //human wins
@@ -67,13 +68,13 @@ void Play_Game (){
 			return;
 		}
 
-		std::cout << "Please make your first move: ";
+		std::cout << "Please make your move: ";
 		std::cin >> Human_Move;
-		while ( game.Is_Valid(Human_Move) ==false ){
+		while ( game.Is_Valid(int(Human_Move)-48) == false ){
 			std::cout << "Your input is invalid, please make another valid input.";
 			std::cin >> Human_Move;
 		}
-		result = game.Make_a_Move (Human_Move);
+		result = game.Make_a_Move (int(Human_Move)-48);
 		assert (result != -1);
 		game.Print_Game_Board();
 		if (result != 0){ //human wins

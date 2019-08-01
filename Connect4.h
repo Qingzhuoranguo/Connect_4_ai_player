@@ -9,6 +9,8 @@ private:
 	// return -1 if fail to insect
 	uint8_t Check_Win ( uint8_t x, uint8_t y );
 
+	void Print_Game_Board_simple();
+
 public:
 	// default constructor
 	ConnectFour(); 

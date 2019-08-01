@@ -51,7 +51,7 @@ ConnectFour::~ConnectFour(){
 	return;
 }
 
-void ConnectFour::Print_Game_Board(){
+void ConnectFour::Print_Game_Board_simple(){
 	std::cout << std::endl << "The current game board is: \n";
 	for (int i = 5; i >-1; i --){
 		std::cout << "| ";
@@ -72,6 +72,29 @@ void ConnectFour::Print_Game_Board(){
 		std::cout << std::endl;
 	}
 	std::cout << "| 0 1 2 3 4 5 6 |" << std::endl;
+}
+
+void ConnectFour::Print_Game_Board(){
+	std::cout << std::endl << "The current game board is: \n";
+	for (int i = 5; i >-1; i --){
+		std::cout<<"   +---+---+---+---+---+---+---+"<<std::endl;
+		for (int j = 0; j < 7; j ++){
+			if (j==0){
+				std::cout << " " << char(97+i) << " |";
+			}
+			if (this->Gameboard[i][j]==0){
+				std::cout << "  ";
+			}else if (this->Gameboard[i][j]==1){
+				std::cout << " X";
+			}else{
+				std::cout << " O";
+			}
+			std::cout <<" |";
+		}
+		std::cout << std::endl;
+	}
+	std::cout<<"   +---+---+---+---+---+---+---+"<<std::endl;
+	std::cout<<"     0   1   2   3   4   5   6  "<<std::endl;
 }
 
 int ConnectFour::Make_a_Move ( uint8_t col ){
