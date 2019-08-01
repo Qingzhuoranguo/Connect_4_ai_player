@@ -115,6 +115,15 @@ int ConnectFour::Make_a_Move ( uint8_t col ){
 	return result;
 }
 
+bool ConnectFour::Is_Valid ( uint8_t col ){
+	for (auto v : this->Possible_Choice){
+		if (v == col){
+			return true;
+		}
+	}
+	return false;
+}
+
 uint8_t ConnectFour::Check_Win ( uint8_t x, uint8_t y ){
 	if (x>2)
 		if (this->Gameboard[x][y]==this->Gameboard[x-1][y] && 
