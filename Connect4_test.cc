@@ -31,7 +31,7 @@ void Play_Game (){
 			Human_First = true;
 			break;
 		}else if((buff.compare (s3)) == 0 || (buff.compare (s4)) == 0){
-			std::cout << "no\n";
+			break;
 		}else {
 			std::cout << "Invalid input detected. Please enter again: (Y/n)";
 		}
