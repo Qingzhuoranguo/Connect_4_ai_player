@@ -12,8 +12,35 @@ void Play_Game ();
 int main () {
 	std::cout << "\n==================Program starts==================\n" << std::endl;
 	std::srand((int) time(0));
-	Play_Game();
-	
+
+	while (true){
+		Play_Game();
+		bool cont = false;
+		std::string buff("");
+		std::string s1("y");
+		std::string s2("Y");
+		std::string s3("N");
+		std::string s4("n");
+		while (true){
+			std::cout << "Do you want to play again? (Y/n) ";
+			getline (std::cin, buff);
+			if ( (buff.compare (s1)) == 0 || (buff.compare (s2)) == 0){
+				cont = true;
+				break;
+			}else if((buff.compare (s3)) == 0 || (buff.compare (s4)) == 0){
+				std::cout << "Goodbye!\n";
+				break;
+			}else {
+				std::cout << "Invalid input detected\n";
+			}
+		}
+		if (cont){
+			continue;
+		}else {
+			break;
+		}
+	}
+	std::cout << "\n==================Program ends==================\n" << std::endl;
 	return 0;
 }
 
