@@ -8,6 +8,8 @@
 #include <ctime>    // For time()
 #include <cstdlib>  // For srand() and rand()
 
+bool SHOW_STATS = true; // release developer friendly prints
+
 // keep track of how many threads are finished, protected by single mutex
 struct Thread_lock{
 	std::mutex finished_count_lock;
@@ -228,10 +230,21 @@ void AI_play (uint8_t first_move, float *stats, ConnectFour *game, uint64_t play
 			// std::cout << "not legal\n";
 			break;
 		}else if (result != 0){ // AI wins
-			win_count ++;
+			win_count += 2;
+
+			//stop all other thread =======================
+				instance->finished_count_lock.lock();
+				if (SHOW_STATS){
+					std::cout << "== Child thread-" << std::this_thread::get_id() << " responsible for position "<< +first_move << " Found the win move\n";
+				}
+				instance->finished_count = 7;
+				assert(instance->finished_count<=7);
+				instance->finished_count_lock.unlock();
+			//stop all other thread =======================
+			
+			break;
 		}else { //draw, invoke random_fill to play
 			bool tie = true;
-			
 			while ( local_game_cpy.Is_Over()==false ){
 				uint8_t move = local_game_cpy.Random_Possible_Choice ();
 				assert ( move < 7 && move >=0);
@@ -275,9 +288,10 @@ void AI_play (uint8_t first_move, float *stats, ConnectFour *game, uint64_t play
 
 	//tell main thread that this thread finishes
 	instance->finished_count_lock.lock();
-	//std::cout << "== Child thread-" << std::this_thread::get_id() << " responsible for position "<< +first_move << " is terminated.\n";
+	if (SHOW_STATS){
+		std::cout << "== Child thread-" << std::this_thread::get_id() << " responsible for position "<< +first_move << " is terminated. # of playouts finished: "<< run_count << std::endl;
+	}
 	instance->finished_count++;
-	assert(instance->finished_count<=7);
 	instance->finished_count_lock.unlock();
 }
 
@@ -301,8 +315,11 @@ uint8_t AI_decision (ConnectFour *game, uint64_t playouts = 500, uint8_t time_li
 	auto start = std::chrono::steady_clock::now();
 	while ( std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start).count() < time_limit ){
 		//if all threads are finished, stop waiting.
-		if (instance.finished_count == 7){ 
-			//std::cout << "== Main thread: all threads finished before time limit (" << +time_limit << " sec).\n";
+		if (instance.finished_count >= 7){ 
+			terminate = 1;
+			if (SHOW_STATS){
+				std::cout << "== Main thread: all threads finished before time limit (" << +time_limit << " sec).\n";
+			}
 			break;
 		}
 	}// used up time limit
@@ -310,7 +327,9 @@ uint8_t AI_decision (ConnectFour *game, uint64_t playouts = 500, uint8_t time_li
 	//send a signal to all child threads, force them to terminate.
 	if (instance.finished_count != 7){
 		terminate = 1; 
-		//std::cout << "== Main thread: run over time limit (" << +time_limit << " sec). Threads are forced to terminate\n";
+		if (SHOW_STATS){
+			std::cout << "== Main thread: run over time limit (" << +time_limit << " sec). Threads are forced to terminate\n";
+		}
 	}
 
 	thread0.join();
@@ -321,11 +340,13 @@ uint8_t AI_decision (ConnectFour *game, uint64_t playouts = 500, uint8_t time_li
 	thread5.join();
 	thread6.join();
 
-	// std::cout << "== stats is: [ ";
-	// for (uint8_t i = 0; i < 7; i ++){
-	// 	std::cout << stats[i] << " ";
-	// }
-	// std::cout << "]"<<std::endl;
+	if (SHOW_STATS){
+		std::cout << "== Calulated probability is: [ ";
+		for (uint8_t i = 0; i < 7; i ++){
+			std::cout << stats[i] << " ";
+		}
+		std::cout << "]"<<std::endl;
+	}
 
 	//find the max probability in stats and return the index (the move)
 	float max = stats[0];

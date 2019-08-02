@@ -1,4 +1,4 @@
-all: test test_run
+all: clean test test_run
 
 test_run: test
 	./test

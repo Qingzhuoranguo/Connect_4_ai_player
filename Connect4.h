@@ -2,13 +2,13 @@
 #include <stdint.h>
 #include <mutex>
 
+
 class ConnectFour {
 private:
-	uint8_t Gameboard [6][7];
 	// return 0 if no one wins, return 1 or 2 if someone wins, 
 	// return -1 if fail to insect
 	uint8_t Check_Win ( uint8_t x, uint8_t y );
-
+	
 	void Print_Game_Board_simple();
 
 public:
@@ -28,9 +28,12 @@ public:
 	bool Is_Valid ( uint8_t col );
 	uint8_t Random_Possible_Choice ();
 private:
+	uint8_t Gameboard [6][7];
 	std::list<uint8_t> Possible_Choice;
 	uint8_t Total_Move;
 };
+
+
 
 
 // Returns calculated next move (best calculated next move). Accruicy is restricted by

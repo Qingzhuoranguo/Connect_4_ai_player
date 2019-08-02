@@ -4,8 +4,11 @@
 #include <ctime>    // For time()
 #include <cstdlib>  // For srand() and rand()
 
-#define PLAYOUTS 100000000 //max random playouts the AI will make.
+#define PLAYOUTS 100000 //max random playouts the AI will make.
 #define TIME_LIMIT 2 //time limit for each decision calculation
+
+
+
 
 void Play_Game ();
 
