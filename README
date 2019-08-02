@@ -1,0 +1,3 @@
+1. To run the program, simply do the makefile.
+2. To turn off Developer mode, comment out the funcition Set_Developer_Mode() in the main().
+3. To change version of normal algorithm (AI_play_v1) and modified algorithm (AI_play_v2), simply change the "version" parameter passed to play_game() in the main(). 

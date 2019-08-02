@@ -1,23 +1,23 @@
 #include <assert.h>
 #include <iostream>
 #include "Connect4.h"
-#include <ctime>    // For time()
-#include <cstdlib>  // For srand() and rand()
+#include <ctime>    
+#include <cstdlib>  
 
-#define PLAYOUTS 100000 //max random playouts the AI will make.
+#define PLAYOUTS 1000000 //max random playouts the AI will make.
 #define TIME_LIMIT 2 //time limit for each decision calculation
 
 
 
 
-void Play_Game ();
+void Play_Game ( uint8_t version );
 
 int main () {
 	Set_Developer_Mode (true);
 	std::cout << "\n==================Program starts==================\n" << std::endl;
 	std::srand((int) time(0));
 	while (true){
-		Play_Game();
+		Play_Game(2);
 		bool cont = false;
 		std::string buff("");
 		std::string s1("y");
@@ -47,7 +47,7 @@ int main () {
 	return 0;
 }
 
-void Play_Game (){
+void Play_Game (uint8_t version){
 	std::string buff;
 	std::string s1("y");
 	std::string s2("Y");
@@ -91,7 +91,7 @@ void Play_Game (){
 	}
 
 	while ( !game.Is_Over() ){
-		AI_Move = AI_decision_v2 (&game, PLAYOUTS, TIME_LIMIT);
+		AI_Move = AI_decision(&game, PLAYOUTS, TIME_LIMIT, version);
 		result = game.Make_a_Move( AI_Move );
 		assert (result != -1);
 		std::cout << "AI choose to place at: " << AI_Move << std::endl;

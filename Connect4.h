@@ -38,6 +38,5 @@ void Set_Developer_Mode( bool set );
 
 // Returns calculated next move (best calculated next move). Accruicy is restricted by
 // current game status, pre defined number of playouts and time limits.
-uint8_t AI_decision (ConnectFour *game, uint64_t playouts, uint8_t time_limit);
+uint8_t AI_decision (ConnectFour *game, uint64_t playouts, uint8_t time_limit, uint8_t version);
 
-uint8_t AI_decision_v2 (ConnectFour *game, uint64_t playouts, uint8_t time_limit);
