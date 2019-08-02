@@ -216,7 +216,7 @@ uint8_t ConnectFour::Random_Possible_Choice (){
 // Thread runner, responsible for calculation of steps after the 'first move'
 void AI_play (uint8_t first_move, float *stats, ConnectFour *game, uint64_t playouts, uint8_t *terminate, Thread_lock *instance ){
 	
-	uint64_t run_count = 0, win_count = 0, draw_count=0, lose_count = 0;
+	uint64_t run_count = 1, win_count = 0, draw_count=0, lose_count = 0;
 
 	//terminate==1 -> force quit(main thread signal)  OR  run_count == playouts -> finish and quit (local)
 	while (*terminate != 1 && run_count < playouts){ 
@@ -289,7 +289,7 @@ void AI_play (uint8_t first_move, float *stats, ConnectFour *game, uint64_t play
 	//tell main thread that this thread finishes
 	instance->finished_count_lock.lock();
 	if (SHOW_STATS){
-		std::cout << "== Child thread-" << std::this_thread::get_id() << " responsible for position "<< +first_move << " is terminated. # of playouts finished: "<< run_count << std::endl;
+		std::cout << "== Child thread-" << std::this_thread::get_id() << " responsible for position "<< +first_move << " is terminated. # of playouts finished: "<< run_count-1 << std::endl;
 	}
 	instance->finished_count++;
 	instance->finished_count_lock.unlock();
