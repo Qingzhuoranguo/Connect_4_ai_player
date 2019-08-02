@@ -91,7 +91,7 @@ void Play_Game (){
 	}
 
 	while ( !game.Is_Over() ){
-		AI_Move = AI_decision (&game, PLAYOUTS, TIME_LIMIT);
+		AI_Move = AI_decision_v2 (&game, PLAYOUTS, TIME_LIMIT);
 		result = game.Make_a_Move( AI_Move );
 		assert (result != -1);
 		std::cout << "AI choose to place at: " << AI_Move << std::endl;
