@@ -13,9 +13,9 @@
 void Play_Game ();
 
 int main () {
+	Set_Developer_Mode (true);
 	std::cout << "\n==================Program starts==================\n" << std::endl;
 	std::srand((int) time(0));
-
 	while (true){
 		Play_Game();
 		bool cont = false;

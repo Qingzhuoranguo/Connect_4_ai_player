@@ -8,7 +8,16 @@
 #include <ctime>    // For time()
 #include <cstdlib>  // For srand() and rand()
 
-bool SHOW_STATS = false; // release developer friendly prints
+bool SHOW_STATS = false;
+
+void Set_Developer_Mode( bool set ){
+	if (set){
+		std::cout << "==Developer== Developer Mode: on\n";
+		SHOW_STATS = true;
+	}else {
+		std::cout << "==Developer== Developer Mode: off\n";
+	}
+}
 
 // keep track of how many threads are finished, protected by single mutex
 struct Thread_lock{
@@ -280,7 +289,7 @@ void AI_play (uint8_t first_move, float *stats, ConnectFour *game, uint64_t play
 	//tell main thread that this thread finishes
 	instance->finished_count_lock.lock();
 	if (SHOW_STATS){
-		std::cout << "== Child thread-" << std::this_thread::get_id() << " responsible for position "<< +first_move << " is terminated. # of playouts finished: "<< run_count-1 << std::endl;
+		std::cout << "==Developer== Child thread-" << std::this_thread::get_id() << " responsible for position "<< +first_move << " is terminated. # of playouts finished: "<< run_count-1 << std::endl;
 	}
 	instance->finished_count++;
 	instance->finished_count_lock.unlock();
@@ -309,7 +318,7 @@ uint8_t AI_decision (ConnectFour *game, uint64_t playouts = 500, uint8_t time_li
 		if (instance.finished_count >= 7){ 
 			terminate = 1;
 			if (SHOW_STATS){
-				std::cout << "== Main thread: all threads finished before time limit (" << +time_limit << " sec).\n";
+				std::cout << "==Developer== Main thread: all threads finished before time limit (" << +time_limit << " sec).\n";
 			}
 			break;
 		}
@@ -319,7 +328,7 @@ uint8_t AI_decision (ConnectFour *game, uint64_t playouts = 500, uint8_t time_li
 	if (instance.finished_count != 7){
 		terminate = 1; 
 		if (SHOW_STATS){
-			std::cout << "== Main thread: run over time limit (" << +time_limit << " sec). Threads are forced to terminate\n";
+			std::cout << "==Developer== Main thread: run over time limit (" << +time_limit << " sec). Threads are forced to terminate\n";
 		}
 	}
 
@@ -332,7 +341,7 @@ uint8_t AI_decision (ConnectFour *game, uint64_t playouts = 500, uint8_t time_li
 	thread6.join();
 
 	if (SHOW_STATS){
-		std::cout << "== Calulated probability is: [ ";
+		std::cout << "==Developer== Calulated probability is: [ ";
 		for (uint8_t i = 0; i < 7; i ++){
 			std::cout << stats[i] << " ";
 		}
@@ -357,7 +366,6 @@ uint8_t AI_decision (ConnectFour *game, uint64_t playouts = 500, uint8_t time_li
 void AI_play_v2 (uint8_t first_move, float *stats, ConnectFour *game, uint64_t playouts, uint8_t *terminate, Thread_lock *instance ){
 	
 	uint64_t run_count = 1, win_count = 0, draw_count=0, lose_count = 0;
-	bool check_condition = true;
 
 	//terminate==1 -> force quit(main thread signal)  OR  run_count == playouts -> finish and quit (local)
 	while (*terminate != 1 && run_count < playouts){ 
@@ -368,67 +376,60 @@ void AI_play_v2 (uint8_t first_move, float *stats, ConnectFour *game, uint64_t p
 		int result = local_game_cpy.Make_a_Move(first_move);
 
 		if (result == -1){ //firt move not legal -> thread not legal, terminated.
-			// std::cout << "not legal\n";
 			goto endWhile;
 		}else if (result != 0){ // AI wins
-			std::cout << "AI wins immidiately, don't MCTs: " << +first_move << std::endl;
-			win_count += 2;
-
+			assert (result == 1 || result == 2);
+			*stats = 2;
 			//stop all other thread =======================
-				instance->finished_count_lock.lock();
-				if (SHOW_STATS){
-					std::cout << "== Child thread-" << std::this_thread::get_id() << " responsible for position "<< +first_move << " Found the win move\n";
-				}
-				instance->finished_count = 7;
-				assert(instance->finished_count<=7);
-				instance->finished_count_lock.unlock();
+			instance->finished_count_lock.lock();
+			if (SHOW_STATS){
+				std::cout << "==Developer== Child thread-" << std::this_thread::get_id() << " responsible for position "<< +first_move << " Found the win move\n";
+			}
+			instance->finished_count = 7;
+			assert(instance->finished_count<=7);
+			instance->finished_count_lock.unlock();
 			//stop all other thread =======================
-			
 			goto endWhile;
-		}else if (check_condition){
-			int arr[7] = {0, 0, 0, 0, 0, 0, 0};
+		}else { //draw
+
+			//check if first_move is Good Move======================================================
+			bool ai_win_all = true;
+
 			for (int human_move = 0; human_move < 7; human_move++){
 				ConnectFour h_game(&local_game_cpy);
 				int human_result = h_game.Make_a_Move(human_move);
+				if (human_result == -1){
+					continue;
+				}
+				//if human can win first, no need to consider Good Move
 				if (human_result == 1 || human_result == 2){ // human can win immidiately if AI make first_move -> AI shouldn't play there
-					win_count = 0;
-					std::cout << "human wins immidiately if AI plays at " << +first_move <<", don't MCTs" << std::endl;
-					// stop current thread
+					*stats = -2;
+					if (SHOW_STATS){
+						std::cout << "==Developer== Child thread-" << std::this_thread::get_id() << " responsible for position "<< +first_move << " Found the lose move\n";
+					}
 					goto endWhile;
 				}
+				bool ai_win = false;
 				for (int ai_move = 0; ai_move < 7; ai_move++){
 					ConnectFour ai_game(&h_game);
 					int ai_result = ai_game.Make_a_Move(ai_move);
 					if (ai_result == 1 || ai_result == 2){
-						// local_game_cpy.Print_Game_Board();
-						std::cout << "current ai test: " << +first_move << std::endl;
-						std::cout << "human moves " << human_move << ", AI moves " << ai_move << " will win" << std::endl;
-						arr[human_move] = 1;
+						ai_win = true;
 						break;
-					}else if (ai_result == -1){
-						arr[human_move] = -1;
 					}
 				}
-			}
-			int numberOfWins = 0;
-			
-			for (int i = 0; i < 7; i++){
-				if (arr[i]==1 || arr[i]==-1){
-					numberOfWins += 1;
+				if (!ai_win){
+					ai_win_all = false;
 				}
 			}
 			
-			if (numberOfWins == 7){ // AI can win if make first_move; no matter what human play next, AI has a position to win immidiately then
-				win_count += 2;
-				std::cout << "AI wins in 2 steps, don't MCTs: " << +first_move << std::endl;
-				std::cout << "printing array" << std::endl;
-				for (int i = 0; i < 7; i++)
-					std::cout << arr[i] << " ";
-				std::cout << std::endl;
+			if (ai_win_all){ // AI can win if make first_move; no matter what human play next, AI has a position to win immidiately then
+				*stats = 2;
+
 				//stop all other thread =======================
 				instance->finished_count_lock.lock();
 				if (SHOW_STATS){
-					std::cout << "== Child thread-" << std::this_thread::get_id() << " responsible for position "<< +first_move << " Found the win move\n";
+					std::cout << "==Developer== Child thread-" << std::this_thread::get_id() << " responsible for position "<< +first_move << " Found the good move\n";
 				}
 				instance->finished_count = 7;
 				assert(instance->finished_count<=7);
@@ -437,8 +438,60 @@ void AI_play_v2 (uint8_t first_move, float *stats, ConnectFour *game, uint64_t p
 
 				goto endWhile;
 			}
-			check_condition = false;
-		}else { //draw, invoke random_fill to play
+
+
+			//check if human has a Good Move===============================================
+			bool human_is_good_move = false;
+
+			for (uint8_t human_move = 0; human_move < 7; human_move++){
+				ConnectFour h_game(&local_game_cpy);
+				int human_result = h_game.Make_a_Move(human_move);
+				if (human_result == -1){ 
+					continue;
+				}
+
+				//checked previously cannot be 1 or 2 so draw:
+
+				bool human_win_all = true;
+				for (uint8_t ai_it_move = 0; ai_it_move < 7; ai_it_move ++){ // for each ai possible moves
+					ConnectFour hh_game(&h_game);
+					int ai_it_result = hh_game.Make_a_Move(ai_it_move);
+
+					if (ai_it_move == -1 || ai_it_result == 1 || ai_it_result == 2){ //if ai wins, then human_move is not a good move
+						continue;
+					}
+
+
+					//draw, check if human can win in anyway
+					bool human_win = false;
+					for (uint8_t human_try = 0; human_try < 7; human_try++){
+						ConnectFour hhh_game(hh_game);
+						int hhh_game_result = hhh_game.Make_a_Move(human_try);
+
+						if (hhh_game_result == -1){
+							continue;
+						}
+						if (hhh_game_result == 1 || hhh_game_result == 2){ //wins
+							human_win = true;
+							break;
+						}
+					}
+					if (!human_win){
+						human_win_all = false;
+					}
+				}
+				if (human_win_all){ //is Good Move
+					*stats = -2;
+					goto endWhile;
+				}
+
+			}
+
+
+
+			
+
+			//random playouts:
 			bool tie = true;
 			while ( local_game_cpy.Is_Over()==false ){
 				uint8_t move = local_game_cpy.Random_Possible_Choice ();
@@ -478,14 +531,14 @@ void AI_play_v2 (uint8_t first_move, float *stats, ConnectFour *game, uint64_t p
 		//---------------
 	}
 
-	endWhile:
 	//write the calculated result back to the corresponding location
 	*stats = float (float(win_count)/float(run_count)); 
 
+	endWhile:
 	//tell main thread that this thread finishes
 	instance->finished_count_lock.lock();
 	if (SHOW_STATS){
-		std::cout << "== Child thread-" << std::this_thread::get_id() << " responsible for position "<< +first_move << " is terminated. # of playouts finished: "<< run_count << std::endl;
+		std::cout << "==Developer== Child thread-" << std::this_thread::get_id() << " responsible for position "<< +first_move << " is terminated. # of playouts finished: "<< run_count << std::endl;
 	}
 	instance->finished_count++;
 	instance->finished_count_lock.unlock();
@@ -514,7 +567,7 @@ uint8_t AI_decision_v2 (ConnectFour *game, uint64_t playouts = 500, uint8_t time
 		if (instance.finished_count >= 7){ 
 			terminate = 1;
 			if (SHOW_STATS){
-				std::cout << "== Main thread: all threads finished before time limit (" << +time_limit << " sec).\n";
+				//std::cout << "==Developer== Main thread: all threads finished before time limit (" << +time_limit << " sec).\n";
 			}
 			break;
 		}
@@ -524,7 +577,7 @@ uint8_t AI_decision_v2 (ConnectFour *game, uint64_t playouts = 500, uint8_t time
 	if (instance.finished_count != 7){
 		terminate = 1; 
 		if (SHOW_STATS){
-			std::cout << "== Main thread: run over time limit (" << +time_limit << " sec). Threads are forced to terminate\n";
+			std::cout << "==Developer== Main thread: run over time limit (" << +time_limit << " sec). Threads are forced to terminate\n";
 		}
 	}
 
@@ -537,7 +590,7 @@ uint8_t AI_decision_v2 (ConnectFour *game, uint64_t playouts = 500, uint8_t time
 	thread6.join();
 
 	if (SHOW_STATS){
-		std::cout << "== Calulated probability is: [ ";
+		std::cout << "==Developer== Main thread: Calulated probability is: [ ";
 		for (uint8_t i = 0; i < 7; i ++){
 			std::cout << stats[i] << " ";
 		}

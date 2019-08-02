@@ -34,7 +34,7 @@ private:
 };
 
 
-
+void Set_Developer_Mode( bool set );
 
 // Returns calculated next move (best calculated next move). Accruicy is restricted by
 // current game status, pre defined number of playouts and time limits.
