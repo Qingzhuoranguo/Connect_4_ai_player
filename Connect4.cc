@@ -479,7 +479,7 @@ void AI_play_v2 (uint8_t first_move, float *stats, ConnectFour *game, uint64_t p
 
 uint8_t AI_decision (ConnectFour *game, uint64_t playouts = 500, uint8_t time_limit = 3, uint8_t version =1){
 	std::cout << "Waiting for AI to make decision..." << std::endl;
-	float stats[7] = {-1,-1,-1,-1,-1,-1,-1}; //random playout results
+	float stats[7] = {-3,-3,-3,-3,-3,-3,-3}; //random playout results
 	uint8_t terminate = 0; // 'singal flag' used to force terminate threads
 	Thread_lock instance; // keep track the number of finished threads, protected by single mutex
 	assert (instance.finished_count == 0);
